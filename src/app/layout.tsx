@@ -5,6 +5,8 @@ import Navbar from "@/components/AppCustomComponents/Navbar";
 import { ThemeProvider } from "@/components/ui/theme-provider";
 import Providers from "./providers";
 import ContractContectProvider from "@/Context/contractContect";
+import { ToastProvider } from "@/components/ui/toast";
+
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -38,8 +40,10 @@ export default function RootLayout({
             defaultTheme="system"
           >
             <Providers>
-              <Navbar />
-              {children}
+              <ToastProvider>
+                <Navbar />
+                {children}
+              </ToastProvider>
             </Providers>
           </ThemeProvider>
         </body>

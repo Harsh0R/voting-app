@@ -1,8 +1,11 @@
+import BecomeCandidate from '@/components/AppCustomComponents/BecomeCandidate'
 import React from 'react'
 
 const page = () => {
   return (
-    <div>page</div>
+    <div>
+      <BecomeCandidate/>
+    </div>
   )
 }
 

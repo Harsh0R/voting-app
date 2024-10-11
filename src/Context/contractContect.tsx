@@ -29,6 +29,23 @@ const ContractContextProvider = ({ children }: any) => {
     }
   };
 
+  const createToken = async (_name: string, _symbol: string , _initalSupply: number , _decimal: number) => {
+    setLoading(true);
+    setTransactionStatus(""); // Reset status before the transaction
+
+    try {
+      const contract = await connectContract();
+      const tx = await contract?.createToken(_name, _symbol , _initalSupply , _decimal ); 
+      await tx.wait(); // Wait for the transaction to be mined
+      setTransactionStatus("Token created successfully!");
+    } catch (error) {
+      setTransactionStatus("Error in creating token.");
+      console.error("Error in creating token: ", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const becomeCandidate = async (
     _name: string,
     _tokenAddress: string,
@@ -52,7 +69,7 @@ const ContractContextProvider = ({ children }: any) => {
 
   return (
     <ContractContext.Provider
-      value={{contract, account, transactionStatus, becomeCandidate, loading }}
+      value={{contract, account, transactionStatus, becomeCandidate, loading , createToken }}
     >
       {children}
     </ContractContext.Provider>
