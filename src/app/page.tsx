@@ -1,10 +1,9 @@
-import { Button } from "@/components/ui/button";
-import Image from "next/image";
+import CandidateList from "@/components/AppCustomComponents/CandidateList";
 
 export default function Home() {
   return (
-   <div>
-    App
-   </div>
+    <div>
+      <CandidateList />
+    </div>
   );
 }

@@ -6,13 +6,11 @@ import {
   NavigationMenuLink,
   NavigationMenuList,
 } from "@/components/ui/navigation-menu";
-import { connectWallet } from "@/Utils/utilsFunctions";
 import { ContractContext } from "@/Context/contractContect";
 import Link from "next/link";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import "@rainbow-me/rainbowkit/styles.css";
 import { ModeToggle } from "../ui/mode-toggle";
-import { Button } from "../ui/button";
 
 const Navbar: React.FC = () => {
   const { account } = useContext(ContractContext);

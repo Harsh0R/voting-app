@@ -5,7 +5,7 @@ import Navbar from "@/components/AppCustomComponents/Navbar";
 import { ThemeProvider } from "@/components/ui/theme-provider";
 import Providers from "./providers";
 import ContractContectProvider from "@/Context/contractContect";
-import { ToastProvider } from "@/components/ui/toast";
+import { ToastProvider } from "@/components/ui/toast1";
 
 
 const geistSans = localFont({
