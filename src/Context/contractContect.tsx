@@ -7,11 +7,41 @@ import {
 } from "@/Utils/utilsFunctions";
 import React, { createContext, useEffect, useState } from "react";
 
-export const ContractContext = createContext<any>(null);
+interface ContractContextType {
+  contract: any; // You can replace this with a proper type for your contract
+  account: string | null;
+  transactionStatus: string;
+  loading: boolean;
+  createToken: (_name: string, _symbol: string, _initalSupply: number, _decimal: number) => Promise<string | undefined>;
+  registerVoter: () => Promise<void>;
+  sendTokenToVoteContract: (_amount: number, _candidateId: number) => Promise<void>;
+  vote: (_candidateId: number) => Promise<void>;
+  getCandidates: () => Promise<Candidate[]>;
+  getTokenDetails: () => Promise<void>;
+  getTokenAddress: () => Promise<string | undefined>;
+  approveTokens: (_contractAddress: string, _amount: number, _tokenAddress: string) => Promise<void>;
+  becomeCandidate: (_name: string, _tokenAddress: string, _transferAmount: number) => Promise<void>;
+  getCandidateIdByAddress: (address?: string) => Promise<number | null>;
+}
 
-const ContractContextProvider = ({ children }: any) => {
+interface Candidate {
+  id: number;
+  name: string;
+  candidateAddress: string;
+  voteCount: number;
+  token: string;
+  transferAmount: number;
+}
+interface Props {
+  children: React.ReactNode;
+}
+
+export const ContractContext = createContext<ContractContextType | null>(null);
+
+
+const ContractContextProvider = ({ children }: Props) => {
   const [contract, setContract] = useState<any>();
-  const [account, setAccount] = useState<string | null>(null);
+  const [account, setAccount] = useState<string>('');
   const [transactionStatus, setTransactionStatus] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
 
@@ -131,8 +161,8 @@ const ContractContextProvider = ({ children }: any) => {
     }
   };
 
-  const getCandidateIdByAddress = async (address: string = account) => {
-    console.log("Address => ", address);
+  const getCandidateIdByAddress = async (address: string = account): Promise<number | null> => {
+    // console.log("Address => ", address);
 
     const candidatesData = await contract.getCandidates();
     const candidates = candidatesData.map((candidate: any) => ({
@@ -146,7 +176,7 @@ const ContractContextProvider = ({ children }: any) => {
 
     // Normalize addresses to lowercase for comparison
     const filteredCandidate = candidates.find(
-      (candidate) =>
+      (candidate: any) =>
         candidate.candidateAddress.toLowerCase() === address.toLowerCase()
     );
 
@@ -156,7 +186,7 @@ const ContractContextProvider = ({ children }: any) => {
     return filteredCandidate ? filteredCandidate.id : null;
   };
 
-  const getCandidates = async () => {
+  const getCandidates = async (): Promise<Candidate[]> => {
     const candidatesData = await contract.getCandidates();
     return candidatesData.map((candidate: any) => ({
       id: candidate.id.toNumber(), // Convert BigNumber to Number

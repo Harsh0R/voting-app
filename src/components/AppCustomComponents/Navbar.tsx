@@ -13,7 +13,6 @@ import "@rainbow-me/rainbowkit/styles.css";
 import { ModeToggle } from "../ui/mode-toggle";
 
 const Navbar: React.FC = () => {
-  const { account } = useContext(ContractContext);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const toggleMobileMenu = () => {

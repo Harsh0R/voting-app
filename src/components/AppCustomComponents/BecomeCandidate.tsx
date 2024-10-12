@@ -16,7 +16,6 @@ const BecomeCandidate = () => {
     getTokenAddress,
     approveTokens,
     loading,
-    transactionStatus,
     getCandidateIdByAddress,
     sendTokenToVoteContract,
   } = useContext(ContractContext);
@@ -29,7 +28,7 @@ const BecomeCandidate = () => {
   const [tokenAddress, setTokenAddress] = useState<string>("");
   const [transferAmount, setTransferAmount] = useState<number>(0);
   const [rewardAmount, setRewardAmount] = useState<number>(0);
-  const [candidateId, setCandidateId] = useState<number>(0);
+  // const [candidateId, setCandidateId] = useState<number>(0);
   const { addToast } = useToast();
 
   useEffect(() => {
@@ -141,9 +140,9 @@ const BecomeCandidate = () => {
   const handleTransferTokens = async (e: React.FormEvent) => {
     e.preventDefault();
     const candidateId = await getCandidateIdByAddress();
-    console.log("Candidate ID => ", candidateId);
+    // console.log("Candidate ID => ", candidateId);
 
-    setCandidateId(candidateId);
+    // setCandidateId(candidateId);
     if (transferAmount <= 0 || candidateId <= 0) {
       addToast({
         title: "Invalid Input",
