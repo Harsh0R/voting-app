@@ -15,10 +15,11 @@ interface Candidate {
 }
 
 const CandidateList = () => {
-  const { getCandidates, vote } = useContext(ContractContext);
+  const { getCandidates, vote, registerVoter } = useContext(ContractContext);
   const { addToast } = useToast();
   const [candidates, setCandidates] = useState<Candidate[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [registerLoading, setRegisterLoading] = useState<boolean>(false);
 
   useEffect(() => {
     const fetchCandidates = async () => {
@@ -42,13 +43,12 @@ const CandidateList = () => {
 
   const handleVote = async (candidateId: number) => {
     try {
-      await vote(candidateId); // Assume this method uses candidate ID
+      await vote(candidateId);
       addToast({
         title: "Vote Cast",
         description: `You have voted for candidate ID ${candidateId}`,
         status: "success",
       });
-      // Refresh the candidate list after voting
       const updatedCandidates = await getCandidates();
       setCandidates(updatedCandidates);
     } catch (error) {
@@ -61,13 +61,78 @@ const CandidateList = () => {
     }
   };
 
+  const handleRegisterVoter = async () => {
+    setRegisterLoading(true);
+    try {
+      await registerVoter();
+      addToast({
+        title: "Registration Successful",
+        description: "You have successfully registered as a voter!",
+        status: "success",
+      });
+    } catch (error) {
+      console.error("Error registering as voter:", error);
+      addToast({
+        title: "Error",
+        description: "Failed to register as a voter.",
+        status: "error",
+      });
+    } finally {
+      setRegisterLoading(false);
+    }
+  };
+
+  // Function to format the address
+  const formatAddress = (address: string) => {
+    if (!address) return "";
+    return `${address.slice(0, 4)}...${address.slice(-4)}`;
+  };
+
+  // Function to copy the address to clipboard
+  const copyToClipboard = (address: string) => {
+    navigator.clipboard
+      .writeText(address)
+      .then(() => {
+        addToast({
+          title: "Copied!",
+          description: "Address copied to clipboard.",
+          status: "success",
+        });
+      })
+      .catch((error) => {
+        console.error("Error copying address:", error);
+        addToast({
+          title: "Error",
+          description: "Failed to copy address.",
+          status: "error",
+        });
+      });
+  };
+
   if (loading) {
     return <div>Loading candidates...</div>;
   }
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen">
-      <Card className="w-full max-w-3xl p-4">
+    <div className="flex flex-col items-center justify-center min-h-screen p-4">
+      {/* Register as Voter Section */}
+      <Card className="w-full max-w-xl mb-6">
+        <CardHeader>
+          <CardTitle>Register as a Voter</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Button
+            onClick={handleRegisterVoter}
+            className="w-full"
+            disabled={registerLoading}
+          >
+            {registerLoading ? "Registering..." : "Register as Voter"}
+          </Button>
+        </CardContent>
+      </Card>
+
+      {/* Candidates List Section */}
+      <Card className="w-full max-w-xl">
         <CardHeader>
           <CardTitle>Candidates</CardTitle>
         </CardHeader>
@@ -84,12 +149,28 @@ const CandidateList = () => {
                   Candidate ID: {candidate.id}
                 </h3>
                 <p>Name: {candidate.name}</p>
-                <p>Candidate Address: {candidate.candidateAddress}</p>
+                <p className="flex items-center">
+                  Candidate Address: {formatAddress(candidate.candidateAddress)}
+                  <div
+                    className="ml-2 cursor-pointer w-5 h-5" // Adjust size as needed
+                    onClick={() => copyToClipboard(candidate.candidateAddress)}
+                  >
+                    📝
+                  </div>
+                </p>
+                <p className="flex items-center">
+                  Token Address: {formatAddress(candidate.token)}
+                  <div
+                    className="ml-2 cursor-pointer w-5 h-5" // Adjust size as needed
+                    onClick={() => copyToClipboard(candidate.token)}
+                  >
+                    📝
+                  </div>
+                </p>
                 <p>Votes: {candidate.voteCount}</p>
-                <p>Token Address: {candidate.token}</p>
-                <p>Transfer Amount: {candidate.transferAmount}</p>
+                <p>Reward Amount: {candidate.transferAmount}</p>
                 <Button
-                  onClick={() => handleVote(candidate.id)} // Pass the candidate ID for voting
+                  onClick={() => handleVote(candidate.id)}
                   className="mt-2"
                 >
                   Vote

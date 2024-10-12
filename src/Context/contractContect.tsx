@@ -132,20 +132,27 @@ const ContractContextProvider = ({ children }: any) => {
   };
 
   const getCandidateIdByAddress = async (address: string = account) => {
+    console.log("Address => ", address);
+
     const candidatesData = await contract.getCandidates();
     const candidates = candidatesData.map((candidate: any) => ({
-      id: candidate.id.toNumber(), // Convert BigNumber to Number
+      id: candidate.id.toNumber(),
       name: candidate.name,
       candidateAddress: candidate.candidateAddress,
-      voteCount: candidate.voteCount.toNumber(), // Convert BigNumber to Number
-      token: candidate.token, // Assuming token is represented as a string
-      transferAmount: candidate.transferAmount.toNumber(), // Convert BigNumber to Number
+      voteCount: candidate.voteCount.toNumber(),
+      token: candidate.token,
+      transferAmount: candidate.transferAmount.toNumber(),
     }));
 
-    // Filter the candidate based on the address
+    // Normalize addresses to lowercase for comparison
     const filteredCandidate = candidates.find(
-      (candidate) => candidate.candidateAddress === address
+      (candidate) =>
+        candidate.candidateAddress.toLowerCase() === address.toLowerCase()
     );
+
+    console.log("Candidates => ", candidates);
+    console.log("Filtered Candidate => ", filteredCandidate);
+
     return filteredCandidate ? filteredCandidate.id : null;
   };
 
@@ -161,7 +168,7 @@ const ContractContextProvider = ({ children }: any) => {
     }));
   };
 
-  const getTokenBalance = async () => {
+  const getTokenDetails = async () => {
     try {
       const contract = await connectContract();
       const balance = await contract?.tokenOfAddress(account);
@@ -193,7 +200,7 @@ const ContractContextProvider = ({ children }: any) => {
     try {
       const contract = await getTokenContract(_tokenAddress);
       console.log("Contract Token Address => ", contract);
-      const amount = await toWei(_amount.toString());
+      const amount = toWei(_amount.toString());
       const tx = await contract?.approve(_contractAddress, amount);
       await tx.wait();
       setTransactionStatus("Tokens Approved!");
@@ -220,7 +227,8 @@ const ContractContextProvider = ({ children }: any) => {
         _tokenAddress,
         _transferAmount
       );
-      await tx.wait(); // Wait for the transaction to be mined
+      const receipt = await tx.wait(); // Wait for the transaction to be mined
+      console.log("Receipt => ", receipt);
       setTransactionStatus("Candidate added successfully!");
     } catch (error) {
       setTransactionStatus("Error in BecomeCandidate.");
@@ -243,7 +251,7 @@ const ContractContextProvider = ({ children }: any) => {
         sendTokenToVoteContract,
         vote,
         getCandidates,
-        getTokenBalance,
+        getTokenDetails,
         getTokenAddress,
         approveTokens,
         getCandidateIdByAddress,

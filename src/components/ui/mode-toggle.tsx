@@ -18,19 +18,21 @@ export function ModeToggle() {
 
   return (
     <Button
-      variant="outline"
+      variant="default"
       onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
       className="flex items-center space-x-2"
     >
       {theme === "dark" ? (
         <>
           <SunIcon className="h-5 w-5" />
-          <span>Light Mode</span>
+          <span className="hidden sm:inline">Light Mode</span>{" "}
+          {/* Hide on small screens */}
         </>
       ) : (
         <>
           <MoonIcon className="h-5 w-5" />
-          <span>Dark Mode</span>
+          <span className="hidden sm:inline">Dark Mode</span>{" "}
+          {/* Hide on small screens */}
         </>
       )}
     </Button>

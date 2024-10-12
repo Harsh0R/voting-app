@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Loader2 } from "lucide-react";
 import { useToast } from "../ui/toast1";
+import { VotingContractAddress } from "@/Constants/Constants";
 
 const BecomeCandidate = () => {
   const {
@@ -27,13 +28,11 @@ const BecomeCandidate = () => {
   const [decimals, setDecimals] = useState<number>(18);
   const [tokenAddress, setTokenAddress] = useState<string>("");
   const [transferAmount, setTransferAmount] = useState<number>(0);
-  const [voteContractAddress, setVoteContractAddress] = useState<string>("");
-  const [rewardAmount, setRewardAmount] = useState<number>(0); // Reward Amount State
-  const [candidateId, setCandidateId] = useState<number>(0); // Added for candidate ID in transfer
+  const [rewardAmount, setRewardAmount] = useState<number>(0);
+  const [candidateId, setCandidateId] = useState<number>(0);
   const { addToast } = useToast();
 
   useEffect(() => {
-    // Fetch token address from the contract if available
     const fetchTokenAddress = async () => {
       try {
         const addr = await getTokenAddress();
@@ -47,7 +46,6 @@ const BecomeCandidate = () => {
     fetchTokenAddress();
   }, [getTokenAddress]);
 
-  // Handle Token Creation
   const handleCreateToken = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!tokenName || !tokenSymbol || initialSupply <= 0) {
@@ -82,10 +80,9 @@ const BecomeCandidate = () => {
     }
   };
 
-  // Handle Candidate Submission with Reward Amount
   const handleBecomeCandidate = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name || !tokenAddress || transferAmount <= 0 || rewardAmount <= 0) {
+    if (!name || !tokenAddress || rewardAmount <= 0) {
       addToast({
         title: "Invalid Input",
         description:
@@ -96,6 +93,8 @@ const BecomeCandidate = () => {
     }
 
     try {
+      becomeCandidate(name, tokenAddress, rewardAmount);
+
       addToast({
         title: "Success",
         description: "You have successfully become a candidate!",
@@ -111,10 +110,9 @@ const BecomeCandidate = () => {
     }
   };
 
-  // Handle Approve Tokens
   const handleApproveTokens = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (transferAmount <= 0 || !voteContractAddress) {
+    if (transferAmount <= 0 || !tokenAddress || !VotingContractAddress) {
       addToast({
         title: "Invalid Input",
         description: "Please enter a valid amount and voting contract address.",
@@ -124,7 +122,7 @@ const BecomeCandidate = () => {
     }
 
     try {
-      await approveTokens(voteContractAddress, transferAmount);
+      await approveTokens(VotingContractAddress, transferAmount, tokenAddress);
       addToast({
         title: "Tokens Approved",
         description: `${transferAmount} tokens approved for voting contract!`,
@@ -142,6 +140,10 @@ const BecomeCandidate = () => {
 
   const handleTransferTokens = async (e: React.FormEvent) => {
     e.preventDefault();
+    const candidateId = await getCandidateIdByAddress();
+    console.log("Candidate ID => ", candidateId);
+
+    setCandidateId(candidateId);
     if (transferAmount <= 0 || candidateId <= 0) {
       addToast({
         title: "Invalid Input",
@@ -152,11 +154,7 @@ const BecomeCandidate = () => {
     }
 
     try {
-      const candidateId = await getCandidateIdByAddress();
-      console.log("Candidate ID => ", candidateId);
-
-      setCandidateId(candidateId); 
-      await sendTokenToVoteContract(transferAmount, candidateId); 
+      await sendTokenToVoteContract(transferAmount, candidateId);
       addToast({
         title: "Tokens Transferred",
         description: `${transferAmount} tokens transferred to voting contract!`,
@@ -182,10 +180,10 @@ const BecomeCandidate = () => {
   };
 
   return (
-    <div className="flex space-x-10 items-center justify-center mt-10">
-      <Card className="w-full max-w-md p-4 ">
+    <div className="flex flex-col space-y-8 md:space-y-10 lg:space-y-12 items-center justify-center min-h-screen py-8 px-4">
+      <Card className="w-full max-w-md p-4 md:p-6 lg:p-8">
         <CardHeader>
-          <CardTitle>Create Token</CardTitle>
+          <CardTitle className="text-lg font-semibold">Create Token</CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleCreateToken}>
@@ -238,7 +236,10 @@ const BecomeCandidate = () => {
                 />
               </div>
 
-              <Button type="submit" className="w-full" disabled={loading}>
+              <Button
+                type="submit"
+                className="w-full md:w-auto px-4 py-2 text-lg font-semibold"
+              >
                 {loading ? (
                   <>
                     <Loader2 className="animate-spin mr-2 h-4 w-4" />
@@ -251,10 +252,8 @@ const BecomeCandidate = () => {
             </div>
           </form>
         </CardContent>
-
-        {/* Token Address Section */}
         {tokenAddress && (
-          <div className="max-w-md p-4">
+          <div className="max-w-md p-4 md:p-6 lg:p-8">
             <h3 className="text-lg font-semibold">Your Token Address:</h3>
             <div className="flex items-center mt-2">
               <Input
@@ -269,8 +268,7 @@ const BecomeCandidate = () => {
         )}
       </Card>
 
-      {/* Unchanged Become Candidate Section */}
-      <Card className="w-full h-full max-w-md p-4">
+      <Card className="w-full max-w-md p-4 md:p-6 lg:p-8">
         <CardHeader>
           <CardTitle className="text-lg font-semibold">
             Become a Candidate
@@ -305,8 +303,7 @@ const BecomeCandidate = () => {
 
               <Button
                 type="submit"
-                className="w-full"
-                disabled={loading || !tokenAddress}
+                className="w-full md:w-auto px-4 py-2 text-lg font-semibold"
               >
                 {loading ? (
                   <>
@@ -322,8 +319,7 @@ const BecomeCandidate = () => {
         </CardContent>
       </Card>
 
-      {/* Approve and Transfer Section */}
-      <Card className="w-full h-full max-w-md p-4">
+      <Card className="w-full max-w-md p-4 md:p-6 lg:p-8">
         <CardHeader>
           <CardTitle className="text-lg font-semibold">
             Approve and Transfer Tokens
@@ -331,18 +327,6 @@ const BecomeCandidate = () => {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            <div>
-              <Label htmlFor="voteContractAddress">Vote Contract Address</Label>
-              <Input
-                id="voteContractAddress"
-                type="text"
-                placeholder="Enter voting contract address"
-                value={voteContractAddress}
-                onChange={(e) => setVoteContractAddress(e.target.value)}
-                required
-              />
-            </div>
-
             <div>
               <Label htmlFor="transferAmount">Amount to Transfer</Label>
               <Input
@@ -355,11 +339,9 @@ const BecomeCandidate = () => {
               />
             </div>
 
-            {/* Approve Button */}
             <Button
               onClick={handleApproveTokens}
-              className="w-full"
-              disabled={loading || !tokenAddress}
+              className="w-full md:w-auto px-4 py-2 text-lg font-semibold"
             >
               {loading ? (
                 <>
@@ -370,11 +352,9 @@ const BecomeCandidate = () => {
               )}
             </Button>
 
-            {/* Transfer Button */}
             <Button
               onClick={handleTransferTokens}
-              className="w-full"
-              disabled={loading || !tokenAddress}
+              className="w-full md:w-auto px-4 py-2 text-lg font-semibold"
             >
               {loading ? (
                 <>
