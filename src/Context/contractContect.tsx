@@ -7,39 +7,10 @@ import {
 } from "@/Utils/utilsFunctions";
 import React, { createContext, useEffect, useState } from "react";
 
-interface ContractContextType {
-  contract: any; // You can replace this with a proper type for your contract
-  account: string | null;
-  transactionStatus: string;
-  loading: boolean;
-  createToken: (_name: string, _symbol: string, _initalSupply: number, _decimal: number) => Promise<string | undefined>;
-  registerVoter: () => Promise<void>;
-  sendTokenToVoteContract: (_amount: number, _candidateId: number) => Promise<void>;
-  vote: (_candidateId: number) => Promise<void>;
-  getCandidates: () => Promise<Candidate[]>;
-  getTokenDetails: () => Promise<void>;
-  getTokenAddress: () => Promise<string | undefined>;
-  approveTokens: (_contractAddress: string, _amount: number, _tokenAddress: string) => Promise<void>;
-  becomeCandidate: (_name: string, _tokenAddress: string, _transferAmount: number) => Promise<void>;
-  getCandidateIdByAddress: (address?: string) => Promise<number | null>;
-}
-
-interface Candidate {
-  id: number;
-  name: string;
-  candidateAddress: string;
-  voteCount: number;
-  token: string;
-  transferAmount: number;
-}
-interface Props {
-  children: React.ReactNode;
-}
-
-export const ContractContext = createContext<ContractContextType | null>(null);
+export const ContractContext = createContext<any>(null);
 
 
-const ContractContextProvider = ({ children }: Props) => {
+const ContractContextProvider = ({ children }: any) => {
   const [contract, setContract] = useState<any>();
   const [account, setAccount] = useState<string>('');
   const [transactionStatus, setTransactionStatus] = useState<string>("");
@@ -186,15 +157,15 @@ const ContractContextProvider = ({ children }: Props) => {
     return filteredCandidate ? filteredCandidate.id : null;
   };
 
-  const getCandidates = async (): Promise<Candidate[]> => {
+  const getCandidates = async ()=> {
     const candidatesData = await contract.getCandidates();
     return candidatesData.map((candidate: any) => ({
-      id: candidate.id.toNumber(), // Convert BigNumber to Number
+      id: candidate.id.toNumber(), 
       name: candidate.name,
       candidateAddress: candidate.candidateAddress,
-      voteCount: candidate.voteCount.toNumber(), // Convert BigNumber to Number
-      token: candidate.token, // Assuming token is represented as a string
-      transferAmount: candidate.transferAmount.toNumber(), // Convert BigNumber to Number
+      voteCount: candidate.voteCount.toNumber(),
+      token: candidate.token, 
+      transferAmount: candidate.transferAmount.toNumber(), 
     }));
   };
 
@@ -229,8 +200,9 @@ const ContractContextProvider = ({ children }: Props) => {
 
     try {
       const contract = await getTokenContract(_tokenAddress);
-      console.log("Contract Token Address => ", contract);
+      console.log("Contract Token Address in approveTokens => ", contract);
       const amount = toWei(_amount.toString());
+      
       const tx = await contract?.approve(_contractAddress, amount);
       await tx.wait();
       setTransactionStatus("Tokens Approved!");
@@ -248,7 +220,7 @@ const ContractContextProvider = ({ children }: Props) => {
     _transferAmount: number
   ) => {
     setLoading(true);
-    setTransactionStatus(""); // Reset status before the transaction
+    setTransactionStatus(""); 
 
     try {
       const contract = await connectContract();
@@ -257,7 +229,7 @@ const ContractContextProvider = ({ children }: Props) => {
         _tokenAddress,
         _transferAmount
       );
-      const receipt = await tx.wait(); // Wait for the transaction to be mined
+      const receipt = await tx.wait(); 
       console.log("Receipt => ", receipt);
       setTransactionStatus("Candidate added successfully!");
     } catch (error) {

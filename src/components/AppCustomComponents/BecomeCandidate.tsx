@@ -35,7 +35,7 @@ const BecomeCandidate = () => {
     const fetchTokenAddress = async () => {
       try {
         const addr = await getTokenAddress();
-        console.log("Token Address in BecomeCandidate => ", addr);
+        // console.log("Token Address in BecomeCandidate => ", addr);
         setTokenAddress(addr);
       } catch (error) {
         console.error("Error fetching token address: ", error);
@@ -321,7 +321,7 @@ const BecomeCandidate = () => {
       <Card className="w-full max-w-md p-4 md:p-6 lg:p-8">
         <CardHeader>
           <CardTitle className="text-lg font-semibold">
-            Approve and Transfer Tokens
+            Approve and Transfer Tokens to contract
           </CardTitle>
         </CardHeader>
         <CardContent>
