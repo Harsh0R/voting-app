@@ -5,11 +5,12 @@ import {
   getTokenContract,
   toWei,
 } from "@/Utils/utilsFunctions";
+import { Contract } from "ethers";
 import React, { createContext, useEffect, useState, ReactNode } from "react";
 
 // Define the shape of the context data
 interface ContractContextType {
-  contract: any;
+  contract: Contract;
   account: string;
   transactionStatus: string;
   becomeCandidate: (
@@ -63,7 +64,7 @@ interface ContractContextProviderProps {
 const ContractContextProvider: React.FC<ContractContextProviderProps> = ({
   children,
 }) => {
-  const [contract, setContract] = useState<any>(undefined);
+  const [contract, setContract] = useState<Contract>();
   const [account, setAccount] = useState<string>("");
   const [transactionStatus, setTransactionStatus] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
@@ -185,7 +186,7 @@ const ContractContextProvider: React.FC<ContractContextProviderProps> = ({
   const getCandidateIdByAddress = async (address: string = account) => {
     const contract = await connectContract();
     const candidatesData = await contract?.getCandidates();
-    const candidates = candidatesData.map((candidate: any) => ({
+    const candidates = candidatesData.map((candidate: Candidate) => ({
       id: candidate.id.toNumber(),
       name: candidate.name,
       candidateAddress: candidate.candidateAddress,
@@ -208,8 +209,8 @@ const ContractContextProvider: React.FC<ContractContextProviderProps> = ({
   const getCandidates = async (): Promise<Candidate[]> => {
     const contract = await connectContract();
     const candidatesData = await contract?.getCandidates();
-    return candidatesData.map((candidate: any) => ({
-      id: candidate.id.toNumber(),
+    return candidatesData.map((candidate: Candidate) => ({
+      id: (candidate.id).toNumber(),
       name: candidate.name,
       candidateAddress: candidate.candidateAddress,
       voteCount: candidate.voteCount.toNumber(),
