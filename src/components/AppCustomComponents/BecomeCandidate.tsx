@@ -11,12 +11,6 @@ import { VotingContractAddress } from "@/Constants/Constants";
 
 const BecomeCandidate = () => {
   const context = useContext(ContractContext);
-
-  // Check if context is undefined
-  if (!context) {
-    return <div>Loading...</div>; // Handle loading or undefined state
-  }
-
   const {
     becomeCandidate,
     createToken,
@@ -25,8 +19,9 @@ const BecomeCandidate = () => {
     loading,
     getCandidateIdByAddress,
     sendTokenToVoteContract,
-  } = context;
+  } = context || {}; // Optional chaining to avoid TypeScript error
 
+  // State variables
   const [name, setName] = useState<string>("");
   const [tokenName, setTokenName] = useState<string>("");
   const [tokenSymbol, setTokenSymbol] = useState<string>("");
@@ -39,16 +34,18 @@ const BecomeCandidate = () => {
 
   useEffect(() => {
     const fetchTokenAddress = async () => {
-      try {
-        const addr = await getTokenAddress();
-        setTokenAddress(addr);
-      } catch (error) {
-        console.error("Error fetching token address: ", error);
+      if (context) {
+        try {
+          const addr = await getTokenAddress();
+          setTokenAddress(addr);
+        } catch (error) {
+          console.error("Error fetching token address: ", error);
+        }
       }
     };
 
     fetchTokenAddress();
-  }, [getTokenAddress]);
+  }, [context, getTokenAddress]); // Add context to dependencies
 
   const handleCreateToken = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -178,6 +175,10 @@ const BecomeCandidate = () => {
       status: "success",
     });
   };
+
+  if (!context) {
+    return <div>Loading...</div>; // Handle loading or undefined state
+  }
 
   return (
     <div className="flex flex-col space-y-8 md:space-y-10 lg:space-y-12 items-center justify-center min-h-screen py-8 px-4">
