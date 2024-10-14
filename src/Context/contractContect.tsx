@@ -10,7 +10,7 @@ import React, { createContext, useEffect, useState, ReactNode } from "react";
 
 // Define the shape of the context data
 interface ContractContextType {
-  contract: Contract;
+  contract?: Contract;
   account: string;
   transactionStatus: string;
   becomeCandidate: (
