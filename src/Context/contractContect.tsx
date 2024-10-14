@@ -5,15 +5,68 @@ import {
   getTokenContract,
   toWei,
 } from "@/Utils/utilsFunctions";
-import React, { createContext, useEffect, useState } from "react";
+import React, { createContext, useEffect, useState, ReactNode } from "react";
 
-export const ContractContext = createContext<any>(undefined);
+// Define the shape of the context data
+interface ContractContextType {
+  contract: any;
+  account: string;
+  transactionStatus: string;
+  becomeCandidate: (
+    _name: string,
+    _tokenAddress: string,
+    _transferAmount: number
+  ) => Promise<void>;
+  loading: boolean;
+  createToken: (
+    _name: string,
+    _symbol: string,
+    _initialSupply: number,
+    _decimal: number
+  ) => Promise<string | void>;
+  registerVoter: () => Promise<void>;
+  sendTokenToVoteContract: (
+    _amount: number,
+    _candidateId: number
+  ) => Promise<void>;
+  vote: (_candidateId: number) => Promise<void>;
+  getCandidates: () => Promise<Candidate[]>;
+  getTokenDetails: () => Promise<void>;
+  getTokenAddress: () => Promise<string | void>;
+  approveTokens: (
+    _contractAddress: string,
+    _amount: number,
+    _tokenAddress: string
+  ) => Promise<void>;
+  getCandidateIdByAddress: (address?: string) => Promise<number | null>;
+}
 
-const ContractContextProvider = ({ children }) => {
-  const [contract, setContract] = useState();
-  const [account, setAccount] = useState("");
-  const [transactionStatus, setTransactionStatus] = useState("");
-  const [loading, setLoading] = useState(false);
+interface Candidate {
+  id: number;
+  name: string;
+  candidateAddress: string;
+  voteCount: number;
+  token: string;
+  transferAmount: number;
+}
+
+// Create a typed context
+export const ContractContext = createContext<ContractContextType | undefined>(
+  undefined
+);
+
+// Define the context provider props type
+interface ContractContextProviderProps {
+  children: ReactNode;
+}
+
+const ContractContextProvider: React.FC<ContractContextProviderProps> = ({
+  children,
+}) => {
+  const [contract, setContract] = useState<any>(undefined);
+  const [account, setAccount] = useState<string>("");
+  const [transactionStatus, setTransactionStatus] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
     const initializeContract = async () => {
@@ -35,10 +88,10 @@ const ContractContextProvider = ({ children }) => {
   };
 
   const createToken = async (
-    _name,
-    _symbol,
-    _initalSupply,
-    _decimal
+    _name: string,
+    _symbol: string,
+    _initialSupply: number,
+    _decimal: number
   ) => {
     setLoading(true);
     setTransactionStatus("");
@@ -48,17 +101,16 @@ const ContractContextProvider = ({ children }) => {
         "In Create Token ==> ",
         _name,
         _symbol,
-        _initalSupply,
+        _initialSupply,
         _decimal
       );
-
       const contract = await connectContract();
       console.log("Contract Address => ", contract);
 
       const tx = await contract?.createToken(
         _name,
         _symbol,
-        _initalSupply,
+        _initialSupply,
         _decimal
       );
       const receipt = await tx.wait();
@@ -94,8 +146,8 @@ const ContractContextProvider = ({ children }) => {
   };
 
   const sendTokenToVoteContract = async (
-    _amount,
-    _candidateId
+    _amount: number,
+    _candidateId: number
   ) => {
     setLoading(true);
     setTransactionStatus("");
@@ -113,7 +165,7 @@ const ContractContextProvider = ({ children }) => {
     }
   };
 
-  const vote = async (_candidateId) => {
+  const vote = async (_candidateId: number) => {
     setLoading(true);
     setTransactionStatus("");
 
@@ -130,14 +182,10 @@ const ContractContextProvider = ({ children }) => {
     }
   };
 
-  const getCandidateIdByAddress = async (
-    address = account
-  ) => {
-    // console.log("Address => ", address);
+  const getCandidateIdByAddress = async (address: string = account) => {
     const contract = await connectContract();
-
     const candidatesData = await contract?.getCandidates();
-    const candidates = candidatesData.map((candidate) => ({
+    const candidates = candidatesData.map((candidate: any) => ({
       id: candidate.id.toNumber(),
       name: candidate.name,
       candidateAddress: candidate.candidateAddress,
@@ -147,7 +195,7 @@ const ContractContextProvider = ({ children }) => {
     }));
 
     const filteredCandidate = candidates.find(
-      (candidate) =>
+      (candidate: Candidate) =>
         candidate.candidateAddress.toLowerCase() === address.toLowerCase()
     );
 
@@ -157,11 +205,10 @@ const ContractContextProvider = ({ children }) => {
     return filteredCandidate ? filteredCandidate.id : null;
   };
 
-  const getCandidates = async () => {
+  const getCandidates = async (): Promise<Candidate[]> => {
     const contract = await connectContract();
-
     const candidatesData = await contract?.getCandidates();
-    return candidatesData.map((candidate) => ({
+    return candidatesData.map((candidate: any) => ({
       id: candidate.id.toNumber(),
       name: candidate.name,
       candidateAddress: candidate.candidateAddress,
@@ -181,7 +228,7 @@ const ContractContextProvider = ({ children }) => {
     }
   };
 
-  const getTokenAddress = async () => {
+  const getTokenAddress = async (): Promise<string | void> => {
     try {
       const contract = await connectContract();
       const tokenAddress = await contract?.getTokenAddress();
@@ -193,16 +240,15 @@ const ContractContextProvider = ({ children }) => {
   };
 
   const approveTokens = async (
-    _contractAddress,
-    _amount,
-    _tokenAddress
+    _contractAddress: string,
+    _amount: number,
+    _tokenAddress: string
   ) => {
     setLoading(true);
     setTransactionStatus("");
 
     try {
       const contract = await getTokenContract(_tokenAddress);
-      console.log("Contract Token Address in approveTokens => ", contract);
       const amount = toWei(_amount.toString());
 
       const tx = await contract?.approve(_contractAddress, amount);
@@ -217,9 +263,9 @@ const ContractContextProvider = ({ children }) => {
   };
 
   const becomeCandidate = async (
-    _name,
-    _tokenAddress,
-    _transferAmount
+    _name: string,
+    _tokenAddress: string,
+    _transferAmount: number
   ) => {
     setLoading(true);
     setTransactionStatus("");
