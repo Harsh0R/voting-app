@@ -7,14 +7,13 @@ import {
 } from "@/Utils/utilsFunctions";
 import React, { createContext, useEffect, useState } from "react";
 
-export const ContractContext = createContext<any>(null);
+export const ContractContext = createContext();
 
-
-const ContractContextProvider = ({ children }: any) => {
-  const [contract, setContract] = useState<any>();
-  const [account, setAccount] = useState<string>('');
-  const [transactionStatus, setTransactionStatus] = useState<string>("");
-  const [loading, setLoading] = useState<boolean>(false);
+const ContractContextProvider = ({ children }) => {
+  const [contract, setContract] = useState();
+  const [account, setAccount] = useState("");
+  const [transactionStatus, setTransactionStatus] = useState("");
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const initializeContract = async () => {
@@ -36,10 +35,10 @@ const ContractContextProvider = ({ children }: any) => {
   };
 
   const createToken = async (
-    _name: string,
-    _symbol: string,
-    _initalSupply: number,
-    _decimal: number
+    _name,
+    _symbol,
+    _initalSupply,
+    _decimal
   ) => {
     setLoading(true);
     setTransactionStatus("");
@@ -62,14 +61,13 @@ const ContractContextProvider = ({ children }: any) => {
         _initalSupply,
         _decimal
       );
-      const receipt = await tx.wait(); // Wait for the transaction to be mined
+      const receipt = await tx.wait();
 
-      // Assuming that the token address is emitted as an event from the contract
-      const tokenAddress = receipt.events[0].args[0]; // Adjust this based on your contract's event structure
+      const tokenAddress = receipt.events[0].args[0];
       console.log("Token Address => ", tokenAddress);
 
       setTransactionStatus("Token created successfully!");
-      return tokenAddress; // Return the token address
+      return tokenAddress;
     } catch (error) {
       setTransactionStatus("Error in creating token.");
       console.error("Error in creating token: ", error);
@@ -96,8 +94,8 @@ const ContractContextProvider = ({ children }: any) => {
   };
 
   const sendTokenToVoteContract = async (
-    _amount: number,
-    _candidateId: number
+    _amount,
+    _candidateId
   ) => {
     setLoading(true);
     setTransactionStatus("");
@@ -115,7 +113,7 @@ const ContractContextProvider = ({ children }: any) => {
     }
   };
 
-  const vote = async (_candidateId: number) => {
+  const vote = async (_candidateId) => {
     setLoading(true);
     setTransactionStatus("");
 
@@ -132,11 +130,14 @@ const ContractContextProvider = ({ children }: any) => {
     }
   };
 
-  const getCandidateIdByAddress = async (address: string = account): Promise<number | null> => {
+  const getCandidateIdByAddress = async (
+    address = account
+  ) => {
     // console.log("Address => ", address);
+    const contract = await connectContract();
 
-    const candidatesData = await contract.getCandidates();
-    const candidates = candidatesData.map((candidate: any) => ({
+    const candidatesData = await contract?.getCandidates();
+    const candidates = candidatesData.map((candidate) => ({
       id: candidate.id.toNumber(),
       name: candidate.name,
       candidateAddress: candidate.candidateAddress,
@@ -145,9 +146,8 @@ const ContractContextProvider = ({ children }: any) => {
       transferAmount: candidate.transferAmount.toNumber(),
     }));
 
-    // Normalize addresses to lowercase for comparison
     const filteredCandidate = candidates.find(
-      (candidate: any) =>
+      (candidate) =>
         candidate.candidateAddress.toLowerCase() === address.toLowerCase()
     );
 
@@ -157,15 +157,17 @@ const ContractContextProvider = ({ children }: any) => {
     return filteredCandidate ? filteredCandidate.id : null;
   };
 
-  const getCandidates = async ()=> {
-    const candidatesData = await contract.getCandidates();
-    return candidatesData.map((candidate: any) => ({
-      id: candidate.id.toNumber(), 
+  const getCandidates = async () => {
+    const contract = await connectContract();
+
+    const candidatesData = await contract?.getCandidates();
+    return candidatesData.map((candidate) => ({
+      id: candidate.id.toNumber(),
       name: candidate.name,
       candidateAddress: candidate.candidateAddress,
       voteCount: candidate.voteCount.toNumber(),
-      token: candidate.token, 
-      transferAmount: candidate.transferAmount.toNumber(), 
+      token: candidate.token,
+      transferAmount: candidate.transferAmount.toNumber(),
     }));
   };
 
@@ -191,9 +193,9 @@ const ContractContextProvider = ({ children }: any) => {
   };
 
   const approveTokens = async (
-    _contractAddress: string,
-    _amount: number,
-    _tokenAddress: string
+    _contractAddress,
+    _amount,
+    _tokenAddress
   ) => {
     setLoading(true);
     setTransactionStatus("");
@@ -202,7 +204,7 @@ const ContractContextProvider = ({ children }: any) => {
       const contract = await getTokenContract(_tokenAddress);
       console.log("Contract Token Address in approveTokens => ", contract);
       const amount = toWei(_amount.toString());
-      
+
       const tx = await contract?.approve(_contractAddress, amount);
       await tx.wait();
       setTransactionStatus("Tokens Approved!");
@@ -215,12 +217,12 @@ const ContractContextProvider = ({ children }: any) => {
   };
 
   const becomeCandidate = async (
-    _name: string,
-    _tokenAddress: string,
-    _transferAmount: number
+    _name,
+    _tokenAddress,
+    _transferAmount
   ) => {
     setLoading(true);
-    setTransactionStatus(""); 
+    setTransactionStatus("");
 
     try {
       const contract = await connectContract();
@@ -229,7 +231,7 @@ const ContractContextProvider = ({ children }: any) => {
         _tokenAddress,
         _transferAmount
       );
-      const receipt = await tx.wait(); 
+      const receipt = await tx.wait();
       console.log("Receipt => ", receipt);
       setTransactionStatus("Candidate added successfully!");
     } catch (error) {

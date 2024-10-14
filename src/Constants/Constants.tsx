@@ -1,7 +1,7 @@
 import votingContractABI from "./Voting.json";
 import tokenABI from "./VotingToken.json";
 
-const VotingContractAddress = '0x010342557897e0E38E15DAa410f3115934061ADb';
+const VotingContractAddress = '0xccE3c5A6Ed4A01611Df943410c854cA2BbBF9330';
 
 const tokenAbi = tokenABI.abi;
 const contractABI = votingContractABI.abi;

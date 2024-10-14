@@ -10,7 +10,7 @@ interface Candidate {
   name: string;
   candidateAddress: string;
   voteCount: number;
-  token: string; // Assuming token is represented as a string (e.g., token address)
+  token: string; 
   transferAmount: number;
 }
 
@@ -82,13 +82,11 @@ const CandidateList = () => {
     }
   };
 
-  // Function to format the address
   const formatAddress = (address: string) => {
     if (!address) return "";
     return `${address.slice(0, 4)}...${address.slice(-4)}`;
   };
 
-  // Function to copy the address to clipboard
   const copyToClipboard = (address: string) => {
     navigator.clipboard
       .writeText(address)
@@ -115,7 +113,7 @@ const CandidateList = () => {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen p-4">
-      {/* Register as Voter Section */}
+
       <Card className="w-full max-w-xl mb-6">
         <CardHeader>
           <CardTitle>Register as a Voter</CardTitle>
@@ -130,8 +128,6 @@ const CandidateList = () => {
           </Button>
         </CardContent>
       </Card>
-
-      {/* Candidates List Section */}
       <Card className="w-full max-w-xl">
         <CardHeader>
           <CardTitle>Candidates</CardTitle>

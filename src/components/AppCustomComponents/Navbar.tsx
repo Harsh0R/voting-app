@@ -84,12 +84,11 @@ const Navbar: React.FC = () => {
 
       {isMobileMenuOpen && (
         <div className="fixed inset-0 z-20 flex">
-          {/* Sidebar Background */}
+          
           <div
             className="fixed inset-0 bg-black bg-opacity-50"
             onClick={toggleMobileMenu}
           />
-          {/* Sidebar Menu */}
           <div className="bg-gray-900 text-white w-64 h-full shadow-lg z-30 transform transition-transform duration-300 ease-in-out">
             <div className="p-4">
               <h2 className=" flex items-center justify-between">

@@ -20,14 +20,14 @@ const BecomeCandidate = () => {
     sendTokenToVoteContract,
   } = useContext(ContractContext);
 
-  const [name, setName] = useState<string>("");
-  const [tokenName, setTokenName] = useState<string>("");
-  const [tokenSymbol, setTokenSymbol] = useState<string>("");
-  const [initialSupply, setInitialSupply] = useState<number>(0);
-  const [decimals, setDecimals] = useState<number>(18);
-  const [tokenAddress, setTokenAddress] = useState<string>("");
-  const [transferAmount, setTransferAmount] = useState<number>(0);
-  const [rewardAmount, setRewardAmount] = useState<number>(0);
+  const [name, setName] = useState("");
+  const [tokenName, setTokenName] = useState("");
+  const [tokenSymbol, setTokenSymbol] = useState("");
+  const [initialSupply, setInitialSupply] = useState(0);
+  const [decimals, setDecimals] = useState(18);
+  const [tokenAddress, setTokenAddress] = useState("");
+  const [transferAmount, setTransferAmount] = useState(0);
+  const [rewardAmount, setRewardAmount] = useState(0);
   // const [candidateId, setCandidateId] = useState<number>(0);
   const { addToast } = useToast();
 
@@ -63,7 +63,7 @@ const BecomeCandidate = () => {
         initialSupply,
         decimals
       );
-      setTokenAddress(tokenAddr); // Store the created token address
+      setTokenAddress(tokenAddr);
       addToast({
         title: "Token Created",
         description: `Token created successfully at address: ${tokenAddr}`,
