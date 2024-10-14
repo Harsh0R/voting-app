@@ -19,9 +19,8 @@ const BecomeCandidate = () => {
     loading,
     getCandidateIdByAddress,
     sendTokenToVoteContract,
-  } = context || {}; // Optional chaining to avoid TypeScript error
+  } = context || {}; 
 
-  // State variables
   const [name, setName] = useState<string>("");
   const [tokenName, setTokenName] = useState<string>("");
   const [tokenSymbol, setTokenSymbol] = useState<string>("");
@@ -34,7 +33,7 @@ const BecomeCandidate = () => {
 
   useEffect(() => {
     const fetchTokenAddress = async () => {
-      if (context) {
+      if (context && typeof getTokenAddress === 'function') { 
         try {
           const addr = await getTokenAddress();
           setTokenAddress(addr);
@@ -45,7 +44,7 @@ const BecomeCandidate = () => {
     };
 
     fetchTokenAddress();
-  }, [context, getTokenAddress]); // Add context to dependencies
+  }, [context, getTokenAddress]); 
 
   const handleCreateToken = async (e: React.FormEvent) => {
     e.preventDefault();
