@@ -2,18 +2,33 @@
 import * as React from "react";
 import { cn } from "@/lib/utils"; // Helper function for conditional class names
 
+// Define the structure of the toast
 interface ToastProps {
   title: string;
   description: string;
   status?: "success" | "error" | "info";
 }
 
-export const ToastContext = React.createContext<any>(null);
+// Define the type for the context
+interface ToastContextType {
+  addToast: (toast: ToastProps) => void;
+}
 
+// Create the ToastContext with the proper type (initially undefined)
+export const ToastContext = React.createContext<ToastContextType | undefined>(
+  undefined
+);
+
+// Custom hook to use the ToastContext
 export const useToast = () => {
-  return React.useContext(ToastContext);
+  const context = React.useContext(ToastContext);
+  if (!context) {
+    throw new Error("useToast must be used within a ToastProvider");
+  }
+  return context;
 };
 
+// ToastProvider component
 export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
