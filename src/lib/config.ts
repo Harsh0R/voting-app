@@ -10,7 +10,7 @@ const supportedChains: Chain[] = [polygonAmoy ,sepolia, bscTestnet, blastSepolia
 export const config = getDefaultConfig({
    appName: 'WalletConnection',
    projectId,
-   chains: supportedChains as any,
+   chains: supportedChains,
    ssr: true,
    storage: createStorage({
     storage: cookieStorage,
