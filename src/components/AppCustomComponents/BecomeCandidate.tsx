@@ -30,7 +30,7 @@ const BecomeCandidate = () => {
   const [transferAmount, setTransferAmount] = useState<number>(0);
   const [rewardAmount, setRewardAmount] = useState<number>(0);
   const { addToast } = useToast();
-
+  
   useEffect(() => {
     const fetchTokenAddress = async () => {
       if (context && typeof getTokenAddress === 'function') { 
