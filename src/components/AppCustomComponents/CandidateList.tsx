@@ -10,12 +10,13 @@ interface Candidate {
   name: string;
   candidateAddress: string;
   voteCount: number;
-  token: string; 
+  token: string;
   transferAmount: number;
 }
 
 const CandidateList = () => {
-  const { getCandidates, vote, registerVoter } = useContext(ContractContext);
+  const context = useContext(ContractContext);
+  const { getCandidates, vote, registerVoter } = context || {};
   const { addToast } = useToast();
   const [candidates, setCandidates] = useState<Candidate[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -24,8 +25,10 @@ const CandidateList = () => {
   useEffect(() => {
     const fetchCandidates = async () => {
       try {
-        const fetchedCandidates = await getCandidates();
-        setCandidates(fetchedCandidates);
+        if (getCandidates) {
+          const fetchedCandidates = await getCandidates();
+          setCandidates(fetchedCandidates);
+        }
       } catch (error) {
         console.error("Error fetching candidates:", error);
         addToast({
@@ -43,14 +46,18 @@ const CandidateList = () => {
 
   const handleVote = async (candidateId: number) => {
     try {
-      await vote(candidateId);
-      addToast({
-        title: "Vote Cast",
-        description: `You have voted for candidate ID ${candidateId}`,
-        status: "success",
-      });
-      const updatedCandidates = await getCandidates();
-      setCandidates(updatedCandidates);
+      if (vote) {
+        await vote(candidateId);
+        addToast({
+          title: "Vote Cast",
+          description: `You have voted for candidate ID ${candidateId}`,
+          status: "success",
+        });
+      }
+      if (getCandidates) {
+        const updatedCandidates = await getCandidates();
+        setCandidates(updatedCandidates);
+      }
     } catch (error) {
       console.error("Error voting for candidate:", error);
       addToast({
@@ -64,12 +71,14 @@ const CandidateList = () => {
   const handleRegisterVoter = async () => {
     setRegisterLoading(true);
     try {
-      await registerVoter();
-      addToast({
-        title: "Registration Successful",
-        description: "You have successfully registered as a voter!",
-        status: "success",
-      });
+      if (registerVoter) {
+        await registerVoter();
+        addToast({
+          title: "Registration Successful",
+          description: "You have successfully registered as a voter!",
+          status: "success",
+        });
+      }
     } catch (error) {
       console.error("Error registering as voter:", error);
       addToast({
@@ -113,7 +122,6 @@ const CandidateList = () => {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen p-4">
-
       <Card className="w-full max-w-xl mb-6">
         <CardHeader>
           <CardTitle>Register as a Voter</CardTitle>
