@@ -4,7 +4,7 @@ import "./globals.css";
 import Navbar from "@/components/AppCustomComponents/Navbar";
 import { ThemeProvider } from "@/components/ui/theme-provider";
 import Providers from "./providers";
-import ContractContectProvider from "@/Context/contractContect";
+import ContractContextProvider  from "@/Context/contractContect";
 import { ToastProvider } from "@/components/ui/toast1";
 
 
@@ -31,7 +31,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="dark">
-      <ContractContectProvider>
+      <ContractContextProvider>
         <body
           className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         >
@@ -47,7 +47,7 @@ export default function RootLayout({
             </Providers>
           </ThemeProvider>
         </body>
-      </ContractContectProvider>
+      </ContractContextProvider>
     </html>
   );
 }
