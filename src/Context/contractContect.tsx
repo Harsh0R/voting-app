@@ -7,7 +7,7 @@ import {
 } from "@/Utils/utilsFunctions";
 import React, { createContext, useEffect, useState } from "react";
 
-export const ContractContext = createContext();
+export const ContractContext = createContext<any>(undefined);
 
 const ContractContextProvider = ({ children }) => {
   const [contract, setContract] = useState();
