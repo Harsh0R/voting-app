@@ -243,7 +243,7 @@ const ContractContextProvider: React.FC<ContractContextProviderProps> = ({
     }
   };
 
-  const getTokenAddress = async (): Promise<string | void> => {
+  const getTokenAddress = async () => {
     try {
       const contract = await connectContract();
       const tokenAddress = await contract?.getTokenAddress();
