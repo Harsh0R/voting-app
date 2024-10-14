@@ -19,7 +19,7 @@ const BecomeCandidate = () => {
     loading,
     getCandidateIdByAddress,
     sendTokenToVoteContract,
-  } = context || {}; 
+  } = context || {};
 
   const [name, setName] = useState<string>("");
   const [tokenName, setTokenName] = useState<string>("");
@@ -30,13 +30,15 @@ const BecomeCandidate = () => {
   const [transferAmount, setTransferAmount] = useState<number>(0);
   const [rewardAmount, setRewardAmount] = useState<number>(0);
   const { addToast } = useToast();
-  
+
   useEffect(() => {
     const fetchTokenAddress = async () => {
-      if (context && typeof getTokenAddress === 'function') { 
+      if (context && typeof getTokenAddress === "function") {
         try {
           const addr = await getTokenAddress();
-          setTokenAddress(addr);
+          if (addr) {
+            setTokenAddress(addr);
+          }
         } catch (error) {
           console.error("Error fetching token address: ", error);
         }
@@ -44,7 +46,7 @@ const BecomeCandidate = () => {
     };
 
     fetchTokenAddress();
-  }, [context, getTokenAddress]); 
+  }, [context, getTokenAddress]);
 
   const handleCreateToken = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -58,18 +60,22 @@ const BecomeCandidate = () => {
     }
 
     try {
-      const tokenAddr = await createToken(
-        tokenName,
-        tokenSymbol,
-        initialSupply,
-        decimals
-      );
-      setTokenAddress(tokenAddr);
-      addToast({
-        title: "Token Created",
-        description: `Token created successfully at address: ${tokenAddr}`,
-        status: "success",
-      });
+      if (createToken) {
+        const tokenAddr = await createToken(
+          tokenName,
+          tokenSymbol,
+          initialSupply,
+          decimals
+        );
+        if (tokenAddr) {
+          setTokenAddress(tokenAddr);
+        }
+        addToast({
+          title: "Token Created",
+          description: `Token created successfully at address: ${tokenAddr}`,
+          status: "success",
+        });
+      }
     } catch (error) {
       console.error("Error while creating token:", error);
       addToast({
@@ -93,12 +99,14 @@ const BecomeCandidate = () => {
     }
 
     try {
-      await becomeCandidate(name, tokenAddress, rewardAmount);
-      addToast({
-        title: "Success",
-        description: "You have successfully become a candidate!",
-        status: "success",
-      });
+      if (becomeCandidate) {
+        await becomeCandidate(name, tokenAddress, rewardAmount);
+        addToast({
+          title: "Success",
+          description: "You have successfully become a candidate!",
+          status: "success",
+        });
+      }
     } catch (error) {
       console.error("Error while becoming a candidate:", error);
       addToast({
@@ -121,12 +129,18 @@ const BecomeCandidate = () => {
     }
 
     try {
-      await approveTokens(VotingContractAddress, transferAmount, tokenAddress);
-      addToast({
-        title: "Tokens Approved",
-        description: `${transferAmount} tokens approved for voting contract!`,
-        status: "success",
-      });
+      if (approveTokens) {
+        await approveTokens(
+          VotingContractAddress,
+          transferAmount,
+          tokenAddress
+        );
+        addToast({
+          title: "Tokens Approved",
+          description: `${transferAmount} tokens approved for voting contract!`,
+          status: "success",
+        });
+      }
     } catch (error) {
       console.error("Error while approving tokens:", error);
       addToast({
@@ -139,30 +153,41 @@ const BecomeCandidate = () => {
 
   const handleTransferTokens = async (e: React.FormEvent) => {
     e.preventDefault();
-    const candidateId = await getCandidateIdByAddress();
-    if (transferAmount <= 0 || candidateId <= 0) {
-      addToast({
-        title: "Invalid Input",
-        description: "Please enter a valid amount and candidate ID.",
-        status: "error",
-      });
-      return;
-    }
-
-    try {
-      await sendTokenToVoteContract(transferAmount, candidateId);
-      addToast({
-        title: "Tokens Transferred",
-        description: `${transferAmount} tokens transferred to voting contract!`,
-        status: "success",
-      });
-    } catch (error) {
-      console.error("Error while transferring tokens:", error);
-      addToast({
-        title: "Error",
-        description: "Failed to transfer tokens.",
-        status: "error",
-      });
+    if (getCandidateIdByAddress) {
+      const candidateId = await getCandidateIdByAddress();
+      if (!candidateId) {
+        addToast({
+          title: "Invalid Input",
+          description: "Please enter a valid amount and candidate ID.",
+          status: "error",
+        });
+        return;
+      }
+      if (transferAmount <= 0 || candidateId <= 0) {
+        addToast({
+          title: "Invalid Input",
+          description: "Please enter a valid amount and candidate ID.",
+          status: "error",
+        });
+        return;
+      }
+      try {
+        if (sendTokenToVoteContract) {
+          await sendTokenToVoteContract(transferAmount, candidateId);
+          addToast({
+            title: "Tokens Transferred",
+            description: `${transferAmount} tokens transferred to voting contract!`,
+            status: "success",
+          });
+        }
+      } catch (error) {
+        console.error("Error while transferring tokens:", error);
+        addToast({
+          title: "Error",
+          description: "Failed to transfer tokens.",
+          status: "error",
+        });
+      }
     }
   };
 
@@ -176,7 +201,7 @@ const BecomeCandidate = () => {
   };
 
   if (!context) {
-    return <div>Loading...</div>; // Handle loading or undefined state
+    return <div>Loading...</div>;
   }
 
   return (
@@ -247,8 +272,6 @@ const BecomeCandidate = () => {
           </form>
         </CardContent>
       </Card>
-
-      {/* Become Candidate Card */}
       <Card className="w-full max-w-md p-4 md:p-6 lg:p-8">
         <CardHeader>
           <CardTitle className="text-lg font-semibold">
@@ -311,7 +334,6 @@ const BecomeCandidate = () => {
         </CardContent>
       </Card>
 
-      {/* Approve Tokens Card */}
       <Card className="w-full max-w-md p-4 md:p-6 lg:p-8">
         <CardHeader>
           <CardTitle className="text-lg font-semibold">
@@ -347,7 +369,6 @@ const BecomeCandidate = () => {
         </CardContent>
       </Card>
 
-      {/* Transfer Tokens Card */}
       <Card className="w-full max-w-md p-4 md:p-6 lg:p-8">
         <CardHeader>
           <CardTitle className="text-lg font-semibold">
