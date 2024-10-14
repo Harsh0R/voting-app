@@ -10,6 +10,13 @@ import { useToast } from "../ui/toast1";
 import { VotingContractAddress } from "@/Constants/Constants";
 
 const BecomeCandidate = () => {
+  const context = useContext(ContractContext);
+
+  // Check if context is undefined
+  if (!context) {
+    return <div>Loading...</div>; // Handle loading or undefined state
+  }
+
   const {
     becomeCandidate,
     createToken,
@@ -18,24 +25,22 @@ const BecomeCandidate = () => {
     loading,
     getCandidateIdByAddress,
     sendTokenToVoteContract,
-  } = useContext(ContractContext);
+  } = context;
 
-  const [name, setName] = useState("");
-  const [tokenName, setTokenName] = useState("");
-  const [tokenSymbol, setTokenSymbol] = useState("");
-  const [initialSupply, setInitialSupply] = useState(0);
-  const [decimals, setDecimals] = useState(18);
-  const [tokenAddress, setTokenAddress] = useState("");
-  const [transferAmount, setTransferAmount] = useState(0);
-  const [rewardAmount, setRewardAmount] = useState(0);
-  // const [candidateId, setCandidateId] = useState<number>(0);
+  const [name, setName] = useState<string>("");
+  const [tokenName, setTokenName] = useState<string>("");
+  const [tokenSymbol, setTokenSymbol] = useState<string>("");
+  const [initialSupply, setInitialSupply] = useState<number>(0);
+  const [decimals, setDecimals] = useState<number>(18);
+  const [tokenAddress, setTokenAddress] = useState<string>("");
+  const [transferAmount, setTransferAmount] = useState<number>(0);
+  const [rewardAmount, setRewardAmount] = useState<number>(0);
   const { addToast } = useToast();
 
   useEffect(() => {
     const fetchTokenAddress = async () => {
       try {
         const addr = await getTokenAddress();
-        // console.log("Token Address in BecomeCandidate => ", addr);
         setTokenAddress(addr);
       } catch (error) {
         console.error("Error fetching token address: ", error);
@@ -92,8 +97,7 @@ const BecomeCandidate = () => {
     }
 
     try {
-      becomeCandidate(name, tokenAddress, rewardAmount);
-
+      await becomeCandidate(name, tokenAddress, rewardAmount);
       addToast({
         title: "Success",
         description: "You have successfully become a candidate!",
@@ -140,9 +144,6 @@ const BecomeCandidate = () => {
   const handleTransferTokens = async (e: React.FormEvent) => {
     e.preventDefault();
     const candidateId = await getCandidateIdByAddress();
-    // console.log("Candidate ID => ", candidateId);
-
-    // setCandidateId(candidateId);
     if (transferAmount <= 0 || candidateId <= 0) {
       addToast({
         title: "Invalid Input",
@@ -180,6 +181,7 @@ const BecomeCandidate = () => {
 
   return (
     <div className="flex flex-col space-y-8 md:space-y-10 lg:space-y-12 items-center justify-center min-h-screen py-8 px-4">
+      {/* Create Token Card */}
       <Card className="w-full max-w-md p-4 md:p-6 lg:p-8">
         <CardHeader>
           <CardTitle className="text-lg font-semibold">Create Token</CardTitle>
@@ -198,7 +200,6 @@ const BecomeCandidate = () => {
                   required
                 />
               </div>
-
               <div>
                 <Label htmlFor="tokenSymbol">Token Symbol</Label>
                 <Input
@@ -210,7 +211,6 @@ const BecomeCandidate = () => {
                   required
                 />
               </div>
-
               <div>
                 <Label htmlFor="initialSupply">Initial Supply</Label>
                 <Input
@@ -222,7 +222,6 @@ const BecomeCandidate = () => {
                   required
                 />
               </div>
-
               <div>
                 <Label htmlFor="decimals">Decimals</Label>
                 <Input
@@ -234,16 +233,12 @@ const BecomeCandidate = () => {
                   required
                 />
               </div>
-
               <Button
                 type="submit"
                 className="w-full md:w-auto px-4 py-2 text-lg font-semibold"
               >
                 {loading ? (
-                  <>
-                    <Loader2 className="animate-spin mr-2 h-4 w-4" />
-                    Processing...
-                  </>
+                  <Loader2 className="animate-spin" />
                 ) : (
                   "Create Token"
                 )}
@@ -251,26 +246,13 @@ const BecomeCandidate = () => {
             </div>
           </form>
         </CardContent>
-        {tokenAddress && (
-          <div className="max-w-md p-4 md:p-6 lg:p-8">
-            <h3 className="text-lg font-semibold">Your Token Address:</h3>
-            <div className="flex items-center mt-2">
-              <Input
-                type="text"
-                value={tokenAddress}
-                readOnly
-                className="mr-2"
-              />
-              <Button onClick={copyToClipboard}>Copy</Button>
-            </div>
-          </div>
-        )}
       </Card>
 
+      {/* Become Candidate Card */}
       <Card className="w-full max-w-md p-4 md:p-6 lg:p-8">
         <CardHeader>
           <CardTitle className="text-lg font-semibold">
-            Become a Candidate
+            Become Candidate
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -287,7 +269,22 @@ const BecomeCandidate = () => {
                   required
                 />
               </div>
-
+              <div>
+                <Label htmlFor="tokenAddress">Token Address</Label>
+                <Input
+                  id="tokenAddress"
+                  type="text"
+                  value={tokenAddress}
+                  readOnly
+                />
+                <Button
+                  type="button"
+                  onClick={copyToClipboard}
+                  className="mt-2"
+                >
+                  Copy Address
+                </Button>
+              </div>
               <div>
                 <Label htmlFor="rewardAmount">Reward Amount</Label>
                 <Input
@@ -299,18 +296,14 @@ const BecomeCandidate = () => {
                   required
                 />
               </div>
-
               <Button
                 type="submit"
                 className="w-full md:w-auto px-4 py-2 text-lg font-semibold"
               >
                 {loading ? (
-                  <>
-                    <Loader2 className="animate-spin mr-2 h-4 w-4" />
-                    Processing...
-                  </>
+                  <Loader2 className="animate-spin" />
                 ) : (
-                  "Submit as Candidate"
+                  "Become Candidate"
                 )}
               </Button>
             </div>
@@ -318,52 +311,75 @@ const BecomeCandidate = () => {
         </CardContent>
       </Card>
 
+      {/* Approve Tokens Card */}
       <Card className="w-full max-w-md p-4 md:p-6 lg:p-8">
         <CardHeader>
           <CardTitle className="text-lg font-semibold">
-            Approve and Transfer Tokens to contract
+            Approve Tokens
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="transferAmount">Amount to Transfer</Label>
-              <Input
-                id="transferAmount"
-                type="number"
-                placeholder="Enter amount"
-                value={transferAmount}
-                onChange={(e) => setTransferAmount(Number(e.target.value))}
-                required
-              />
+          <form onSubmit={handleApproveTokens}>
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="transferAmount">Amount to Approve</Label>
+                <Input
+                  id="transferAmount"
+                  type="number"
+                  placeholder="Enter amount to approve"
+                  value={transferAmount}
+                  onChange={(e) => setTransferAmount(Number(e.target.value))}
+                  required
+                />
+              </div>
+              <Button
+                type="submit"
+                className="w-full md:w-auto px-4 py-2 text-lg font-semibold"
+              >
+                {loading ? (
+                  <Loader2 className="animate-spin" />
+                ) : (
+                  "Approve Tokens"
+                )}
+              </Button>
             </div>
+          </form>
+        </CardContent>
+      </Card>
 
-            <Button
-              onClick={handleApproveTokens}
-              className="w-full md:w-auto px-4 py-2 text-lg font-semibold"
-            >
-              {loading ? (
-                <>
-                  <Loader2 className="animate-spin mr-2 h-4 w-4" />
-                </>
-              ) : (
-                "Approve Tokens"
-              )}
-            </Button>
-
-            <Button
-              onClick={handleTransferTokens}
-              className="w-full md:w-auto px-4 py-2 text-lg font-semibold"
-            >
-              {loading ? (
-                <>
-                  <Loader2 className="animate-spin mr-2 h-4 w-4" />
-                </>
-              ) : (
-                "Transfer Tokens"
-              )}
-            </Button>
-          </div>
+      {/* Transfer Tokens Card */}
+      <Card className="w-full max-w-md p-4 md:p-6 lg:p-8">
+        <CardHeader>
+          <CardTitle className="text-lg font-semibold">
+            Transfer Tokens
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleTransferTokens}>
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="transferAmount">Transfer Amount</Label>
+                <Input
+                  id="transferAmount"
+                  type="number"
+                  placeholder="Enter amount to transfer"
+                  value={transferAmount}
+                  onChange={(e) => setTransferAmount(Number(e.target.value))}
+                  required
+                />
+              </div>
+              <Button
+                type="submit"
+                className="w-full md:w-auto px-4 py-2 text-lg font-semibold"
+              >
+                {loading ? (
+                  <Loader2 className="animate-spin" />
+                ) : (
+                  "Transfer Tokens"
+                )}
+              </Button>
+            </div>
+          </form>
         </CardContent>
       </Card>
     </div>
