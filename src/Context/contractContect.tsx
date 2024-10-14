@@ -5,7 +5,7 @@ import {
   getTokenContract,
   toWei,
 } from "@/Utils/utilsFunctions";
-import { Contract } from "ethers";
+import { BigNumber, Contract } from "ethers";
 import React, { createContext, useEffect, useState, ReactNode } from "react";
 
 // Define the shape of the context data
@@ -183,16 +183,24 @@ const ContractContextProvider: React.FC<ContractContextProviderProps> = ({
     }
   };
 
+
   const getCandidateIdByAddress = async (address: string = account) => {
     const contract = await connectContract();
     const candidatesData = await contract?.getCandidates();
+
     const candidates = candidatesData.map((candidate: Candidate) => ({
-      id: candidate.id.toNumber(),
+      id: BigNumber.isBigNumber(candidate.id)
+        ? candidate.id.toNumber()
+        : candidate.id,
       name: candidate.name,
       candidateAddress: candidate.candidateAddress,
-      voteCount: candidate.voteCount.toNumber(),
+      voteCount: BigNumber.isBigNumber(candidate.voteCount)
+        ? candidate.voteCount.toNumber()
+        : candidate.voteCount,
       token: candidate.token,
-      transferAmount: candidate.transferAmount.toNumber(),
+      transferAmount: BigNumber.isBigNumber(candidate.transferAmount)
+        ? candidate.transferAmount.toNumber()
+        : candidate.transferAmount,
     }));
 
     const filteredCandidate = candidates.find(
@@ -210,12 +218,18 @@ const ContractContextProvider: React.FC<ContractContextProviderProps> = ({
     const contract = await connectContract();
     const candidatesData = await contract?.getCandidates();
     return candidatesData.map((candidate: Candidate) => ({
-      id: (candidate.id).toNumber(),
+      id: BigNumber.isBigNumber(candidate.id)
+        ? candidate.id.toNumber()
+        : candidate.id,
       name: candidate.name,
       candidateAddress: candidate.candidateAddress,
-      voteCount: candidate.voteCount.toNumber(),
+      voteCount: BigNumber.isBigNumber(candidate.voteCount)
+        ? candidate.voteCount.toNumber()
+        : candidate.voteCount,
       token: candidate.token,
-      transferAmount: candidate.transferAmount.toNumber(),
+      transferAmount: BigNumber.isBigNumber(candidate.transferAmount)
+        ? candidate.transferAmount.toNumber()
+        : candidate.transferAmount,
     }));
   };
 
